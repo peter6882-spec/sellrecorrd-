@@ -2,110 +2,52 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>蔡叔叔比薩屋 - 雲端銷售系統</title>
+    <title>蔡叔叔比薩屋 - 銷售看板</title>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; padding: 20px; background-color: #f0f2f5; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; }
-        .date-section { text-align: center; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #dee2e6; padding: 10px; text-align: center; }
+        body { font-family: sans-serif; padding: 20px; background-color: #f8f9fa; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
         th { background-color: #343a40; color: white; }
-        input { width: 60px; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
-        .sold-text { font-weight: bold; color: #d9534f; }
-        button { display: block; width: 100%; padding: 15px; margin-top: 20px; background: #28a745; color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; }
-        button:hover { background: #218838; }
-        .history-section { margin-top: 40px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>蔡叔叔比薩屋 - 每日餅皮紀錄</h2>
-    
-    <div class="date-section">
-        <label>日期：</label>
-        <input type="date" id="sale-date">
-    </div>
-
-    <table>
-        <tr><th>餅皮品項</th><th>初始</th><th>剩餘</th><th>賣出</th></tr>
-        <script>
-            const items = ['9吋薄脆', '9吋鬆厚', '12吋薄脆', '12吋鬆厚'];
-            const ids = ['9t', '9s', '12t', '12s'];
-            items.forEach((item, index) => {
-                document.write(`<tr>
-                    <td>${item}</td>
-                    <td><input type="number" class="init" id="init_${ids[index]}" value="30" oninput="calc()"></td>
-                    <td><input type="number" class="rem" id="rem_${ids[index]}" value="0" oninput="calc()"></td>
-                    <td class="sold-text" id="sold_${ids[index]}">30</td>
-                </tr>`);
-            });
-        </script>
+    <h2>🍕 蔡叔叔比薩屋 - 銷售即時看板</h2>
+    <table id="history-table">
+        <tr><th>日期</th><th>9吋厚</th><th>12吋厚</th><th>9吋薄</th><th>12吋薄</th></tr>
+        <tr><td colspan="5">讀取中...</td></tr>
     </table>
-
-    <button onclick="saveData()">💾 同步上傳至雲端</button>
-
-    <div class="history-section">
-        <h3>📊 即時銷售歷史</h3>
-        <table id="history-table">
-            <tr><th>日期</th><th>9薄</th><th>9鬆</th><th>12薄</th><th>12鬆</th></tr>
-        </table>
-    </div>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, query, orderByChild } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
-
-    // --- 請填入您的 Firebase 配置 ---
-const firebaseConfig = {
-  apiKey: "AIzaSyDaiVm3dm1-vP8Pub3jhUmgz7Cm74Hf_Yc",
-  authDomain: "sellrecord.firebaseapp.com",
-  databaseURL: "https://sellrecord-default-rtdb.firebaseio.com",
-  projectId: "sellrecord",
-  storageBucket: "sellrecord.firebasestorage.app",
-  messagingSenderId: "631121336299",
-  appId: "1:631121336299:web:b00b72ad92bb35748bebae"
-};
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const salesRef = ref(db, 'sales');
-
-    // 即時渲染歷史紀錄
-    onValue(query(salesRef, orderByChild('date')), (snapshot) => {
-        const table = document.getElementById('history-table');
-        table.innerHTML = `<tr><th>日期</th><th>9薄</th><th>9鬆</th><th>12薄</th><th>12鬆</th></tr>`;
-        const data = snapshot.val();
-        if (data) {
-            Object.values(data).reverse().forEach(h => {
-                table.innerHTML += `<tr><td>${h.date}</td><td>${h.s9t}</td><td>${h.s9s}</td><td>${h.s12t}</td><td>${h.s12s}</td></tr>`;
-            });
-        }
-    });
-
-    window.saveData = () => {
-        push(salesRef, {
-            date: document.getElementById('sale-date').value,
-            s9t: document.getElementById('sold_9t').innerText,
-            s9s: document.getElementById('sold_9s').innerText,
-            s12t: document.getElementById('sold_12t').innerText,
-            s12s: document.getElementById('sold_12s').innerText
-        }).then(() => alert("✅ 資料已同步至雲端"));
-    };
-</script>
-
 <script>
-    document.getElementById('sale-date').valueAsDate = new Date();
-    window.calc = () => {
-        ['9t', '9s', '12t', '12s'].forEach(id => {
-            const i = parseInt(document.getElementById('init_'+id).value) || 0;
-            const r = parseInt(document.getElementById('rem_'+id).value) || 0;
-            document.getElementById('sold_'+id).innerText = (i - r);
-        });
-    };
-</script>
+    // --- 重要：請將這串網址換成您剛剛部署好的 /exec 網址 ---
+    const SPREADSHEET_API = "https://script.google.com/macros/s/您的亂碼/exec";
 
+    function updateTable() {
+        fetch(SPREADSHEET_API)
+            .then(res => res.json())
+            .then(data => {
+                const table = document.getElementById('history-table');
+                table.innerHTML = `<tr><th>日期</th><th>9吋厚</th><th>12吋厚</th><th>9吋薄</th><th>12吋薄</th></tr>`;
+                data.reverse().forEach(row => {
+                    table.innerHTML += `<tr>
+                        <td>${row.date}</td>
+                        <td>${row.s9s}</td>
+                        <td>${row.s12s}</td>
+                        <td>${row.s9t}</td>
+                        <td>${row.s12t}</td>
+                    </tr>`;
+                });
+            })
+            .catch(err => {
+                document.getElementById('history-table').innerHTML = "<tr><td colspan='5'>無法讀取資料，請確認 Apps Script 已公開部署</td></tr>";
+            });
+    }
+
+    updateTable();
+    setInterval(updateTable, 10000); // 每10秒自動更新
+</script>
 </body>
 </html>
