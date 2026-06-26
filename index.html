@@ -23,7 +23,7 @@
 
 <script>
     // --- 重要：請將這串網址換成您剛剛部署好的 /exec 網址 ---
-    const SPREADSHEET_API = "https://script.google.com/macros/s/AKfycbw2cR6jq4dNo7vIgfu7xNnDpYI2Y3t37hNiD74oczCwRUrdcTC_6J1iX1LoSzw3y6X9sQ/exec";
+    const SPREADSHEET_API = "https://script.google.com/macros/s/您的亂碼/exec";
 
     function updateTable() {
         fetch(SPREADSHEET_API)
@@ -31,7 +31,7 @@
             .then(data => {
                 const table = document.getElementById('history-table');
                 table.innerHTML = `<tr><th>日期</th><th>9吋厚</th><th>12吋厚</th><th>9吋薄</th><th>12吋薄</th></tr>`;
-                data.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(row => {
+                data.reverse().forEach(row => {
                     table.innerHTML += `<tr>
                         <td>${row.date}</td>
                         <td>${row.s9s}</td>
